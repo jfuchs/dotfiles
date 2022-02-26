@@ -2,6 +2,12 @@
 
 set -e # -e: exit on error
 
+# HACK
+# The script returned from https://chezmoi.io/get looks at the GITHUB_USER env
+# variable to tell which repo to download chezmoi from. Codespaces also sets the
+# same environment variable. Bug: https://github.com/twpayne/chezmoi/issues/1924
+GITHUB_USER=""
+
 if [ ! "$(command -v chezmoi)" ]; then
   bin_dir="$HOME/.local/bin"
   chezmoi="$bin_dir/chezmoi"
