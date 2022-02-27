@@ -1,3 +1,4 @@
+DISABLE_AUTO_UPDATE="true"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
@@ -13,9 +14,6 @@ source $ZSH/oh-my-zsh.sh
 
 source ~/.p10k.zsh
 
-DISABLE_AUTO_UPDATE="true"
-
-
 
 # No arguments: `git status`
 # With arguments: acts like `git`
@@ -29,7 +27,18 @@ g() {
 
 alias gaa='git add --all'
 alias gane='git commit --amend --no-edit'
+alias gd='git diff'
 alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+# git commit with message argument
+gc() {
+    if [[ $# != 1 ]]; then
+    echo "Usage: gc <MESSAGE>" >&2
+    return $?
+  fi
+
+  git commit -m $1
+}
 
 # git branch (interactive)
 gb() {
@@ -45,10 +54,11 @@ gb() {
     if [[ -t 1 ]]; then git checkout "$branch"; else echo $branch; fi
 }
 
+# start a new branch
 gs() {
   if [[ $# != 1 ]]; then
     echo "Usage: gs <NAME>" >&2
-    exit 64
+    return $?
   fi
 
   defaultBranchName=$(git branch -l main master | sed 's/[\* ]*//' | head -n 1)
