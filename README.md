@@ -15,6 +15,7 @@ or
 
 ```shell
 brew install chezmoi
+chezmoi init --apply jfuchs
 ```
 
 ### Update
