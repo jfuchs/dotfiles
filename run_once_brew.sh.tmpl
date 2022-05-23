@@ -32,3 +32,6 @@ sudo apt-get install -y \
   git
 
 {{ end -}}
+
+printf 'Setting up commit-graph'
+git commit-graph write --reachable --changed-paths
