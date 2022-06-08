@@ -33,6 +33,16 @@ sudo apt-get install -y \
 
 {{ end -}}
 
-# Figure out how to do this in the repo:
-# printf 'Setting up commit-graph'
-# git commit-graph write --reachable --changed-paths
+
+if [[ -z "${CODESPACE_VSCODE_FOLDER}" ]]; then
+  printf "Setting up commit-graph in ${CODESPACE_VSCODE_FOLDER}"
+  (cd $CODESPACE_VSCODE_FOLDER; git commit-graph write --reachable --changed-paths)
+fi
+
+# Set zsh as my default shell:
+{{ if (eq .chezmoi.os "linux") }}
+printf 'Setting zsh as shell'
+if [[ -n "$(grep $(whoami) /etc/passwd)" ]] && ! grep -q "$(whoami).*/bin/zsh" /etc/passwd; then
+  sudo chsh -s /bin/zsh $(whoami)
+fi
+{{ end -}}
