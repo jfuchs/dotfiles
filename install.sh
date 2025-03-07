@@ -1,29 +1,51 @@
 #!/bin/sh
 
+# CODESPACES INSTALL SCRIPT
+
 set -e # -e: exit on error
 
-# HACK
-# The script returned from https://chezmoi.io/get looks at the GITHUB_USER env
-# variable to tell which repo to download chezmoi from. Codespaces also sets the
-# same environment variable. Bug: https://github.com/twpayne/chezmoi/issues/1924
-GITHUB_USER=""
+printf 'Installing apt-get packages...\n'
+sudo apt-get install -y \
+  fd-find \
+  fzf \
+  gh \
+  jq \
+  wget \
+  git
 
-if [ ! "$(command -v chezmoi)" ]; then
-  bin_dir="$HOME/.local/bin"
-  chezmoi="$bin_dir/chezmoi"
-  if [ "$(command -v curl)" ]; then
-    sh -c "$(curl -fsLS https://chezmoi.io/get)" -- -b "$bin_dir"
-  elif [ "$(command -v wget)" ]; then
-    sh -c "$(wget -qO- https://chezmoi.io/get)" -- -b "$bin_dir"
-  else
-    echo "To install chezmoi, you must have curl or wget installed." >&2
-    exit 1
-  fi
-else
-  chezmoi=chezmoi
+printf 'Setting zsh as shell\n'
+if [[ -n "$(grep $(whoami) /etc/passwd)" ]] && ! grep -q "$(whoami).*/bin/zsh" /etc/passwd; then
+  sudo chsh -s /bin/zsh $(whoami)
 fi
 
-# POSIX way to get script's dir: https://stackoverflow.com/a/29834779/12156188
-script_dir="$(cd -P -- "$(dirname -- "$(command -v -- "$0")")" && pwd -P)"
-# exec: replace current process with chezmoi init
-exec "$chezmoi" init --apply "--source=$script_dir"
+printf 'Installing ohmyzsh\n'
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+printf 'Installing zsh syntax highlighting\n'
+if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
+  git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+fi
+
+printf 'Installing zsh autosuggestions\n'
+if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
+  git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+fi
+
+printf 'Installing p10k\n'
+if [ ! -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]; then
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
+fi
+
+printf 'Installing zshrc\n'
+if [ ! -f "$HOME/.zshrc" ]; then
+  cp ./dot_zshrc $HOME/.zshrc
+fi
+
+printf 'Installing p10k config\n'
+if [ ! -f "$HOME/.p10k.zsh" ]; then
+  cp ./dot_p10k.zsh $HOME/.p10k.zsh
+fi
+
+
