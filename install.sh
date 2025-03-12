@@ -40,13 +40,21 @@ if [ ! -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]; then
 fi
 
 printf 'Installing zshrc\n'
-if [ ! -f "$HOME/.zshrc" ]; then
-  cp ./dot_zshrc $HOME/.zshrc
+if [ -f "$HOME/.zshrc" ]; then
+  if [ "$(diff $HOME/.zshrc ./dot_zshrc)" ]; then
+    mv --backup=t $HOME/.zshrc $HOME/.zshrc.bak
+    printf 'Backed up existing .zshrc\n'
+  fi
 fi
+cp ./dot_zshrc $HOME/.zshrc
 
 printf 'Installing p10k config\n'
-if [ ! -f "$HOME/.p10k.zsh" ]; then
-  cp ./dot_p10k.zsh $HOME/.p10k.zsh
+if [ -f "$HOME/.p10k.zsh" ]; then
+  if [ "$(diff $HOME/.p10k.zsh ./dot_p10k.zsh)" ]; then
+    mv --backup=t $HOME/.p10k.zsh $HOME/.p10k.zsh.bak
+    printf 'Backed up existing .p10k.zsh\n'
+  fi
 fi
+cp ./dot_p10k.zsh $HOME/.p10k.zsh
 
 
