@@ -5,6 +5,7 @@
 set -e # -e: exit on error
 
 printf 'Installing apt-get packages...\n'
+sudo apt-get update -y
 sudo apt-get install -y \
   fd-find \
   fzf \
@@ -14,7 +15,7 @@ sudo apt-get install -y \
   git
 
 printf 'Setting zsh as shell\n'
-if [[ -n "$(grep $(whoami) /etc/passwd)" ]] && ! grep -q "$(whoami).*/bin/zsh" /etc/passwd; then
+if [ -n "$(grep $(whoami) /etc/passwd)" ] && ! grep -q "$(whoami).*/bin/zsh" /etc/passwd; then
   sudo chsh -s /bin/zsh $(whoami)
 fi
 
