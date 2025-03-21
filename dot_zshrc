@@ -67,3 +67,37 @@ gs() {
   git switch -c "jfuchs/$1" "origin/$defaultBranchName"
   git push -u origin "jfuchs/$1"
 }
+
+# Execute the passed command and make a commit with its changes
+ge() {
+
+  # fail if no command is passed:
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: ge <COMMAND>" >&2
+    return 1
+  fi
+
+  # fail if no clean status:
+  if [[ $(git status --porcelain) ]]; then
+    echo "Working directory is not clean. Please commit or stash your changes before running this command." >&2
+    return 1
+  fi
+
+  # execute (and fail if the command fails):
+  if ! "$@"; then
+    echo "Command failed. Please fix the issue before running this command." >&2
+    return 1
+  fi
+
+  # fail if no changes:
+  if [[ -z $(git status --porcelain) ]]; then
+      echo "No changes to commit." >&2
+      return 1
+  fi
+
+  # commit the changes:
+  git add --all
+  git commit -m "Executed command: $*"
+
+  return $?  
+}
