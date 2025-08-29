@@ -14,6 +14,7 @@ brew bundle --no-lock --file=/dev/stdin <<EOF
 brew "fd"
 brew "fzf"
 brew "gh"
+brew "jj"
 brew "jq"
 brew "trash"
 brew "wget"
@@ -30,6 +31,19 @@ sudo apt-get install -y \
   jq \
   wget \
   git
+
+# Install jj (Jujutsu) for Linux
+if ! command -v jj &> /dev/null; then
+  printf 'Installing jj (Jujutsu)...\n'
+  if command -v cargo &> /dev/null; then
+    cargo install --git https://github.com/martinvonz/jj jj-cli --bin jj
+  else
+    # Install Rust/Cargo first, then jj
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+    cargo install --git https://github.com/martinvonz/jj jj-cli --bin jj
+  fi
+fi
 
 {{ end -}}
 

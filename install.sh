@@ -14,6 +14,19 @@ sudo apt-get install -y \
   wget \
   git
 
+# Install jj (Jujutsu) for Linux
+if ! command -v jj &> /dev/null; then
+  printf 'Installing jj (Jujutsu)...\n'
+  if command -v cargo &> /dev/null; then
+    cargo install --git https://github.com/martinvonz/jj jj-cli --bin jj
+  else
+    # Install Rust/Cargo first, then jj
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+    cargo install --git https://github.com/martinvonz/jj jj-cli --bin jj
+  fi
+fi
+
 printf 'Setting zsh as shell\n'
 if [ -n "$(grep $(whoami) /etc/passwd)" ] && ! grep -q "$(whoami).*/bin/zsh" /etc/passwd; then
   sudo chsh -s /bin/zsh $(whoami)
