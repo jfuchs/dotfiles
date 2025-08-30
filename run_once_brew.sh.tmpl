@@ -36,12 +36,17 @@ sudo apt-get install -y \
 if ! command -v jj &> /dev/null; then
   printf 'Installing jj (Jujutsu)...\n'
   if command -v cargo &> /dev/null; then
-    cargo install --git https://github.com/martinvonz/jj jj-cli --bin jj
+    # Install cargo-binstall if not present
+    if ! command -v cargo-binstall &> /dev/null; then
+      cargo install cargo-binstall
+    fi
+    cargo binstall --no-confirm jj-cli
   else
-    # Install Rust/Cargo first, then jj
+    # Install Rust/Cargo first, then cargo-binstall, then jj
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source "$HOME/.cargo/env"
-    cargo install --git https://github.com/martinvonz/jj jj-cli --bin jj
+    cargo install cargo-binstall
+    cargo binstall --no-confirm jj-cli
   fi
 fi
 
