@@ -20,69 +20,77 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Install dependencies
         run: |
+          pip install Pillow
           sudo apt-get update
-          sudo apt-get install -y zsh git aha wkhtmltopdf imagemagick fonts-jetbrains-mono
+          sudo apt-get install -y zsh imagemagick
 
-      - name: Install termshot
+      - name: Verify prompt syntax
         run: |
-          curl -fsSL https://github.com/homeport/termshot/releases/latest/download/termshot_linux_amd64.tar.gz \
-            | sudo tar -xz -C /usr/local/bin termshot
+          zsh -n dot_prompt.zsh
+          echo "Prompt syntax OK"
 
-      - name: Run visual regression tests
+      - name: Generate current snapshots
         run: |
-          chmod +x test/visual/run-tests.sh test/visual/scenarios.zsh
-          ./test/visual/run-tests.sh test
-        env:
-          TERM: xterm-256color
+          mkdir -p test/visual/actual
+          python3 test/visual/generate_snapshots.py
+          mv test/visual/snapshots/*.png test/visual/actual/
+
+      - name: Restore baseline snapshots
+        run: |
+          git checkout HEAD -- test/visual/snapshots/
+
+      - name: Compare snapshots
+        run: |
+          failed=0
+          mkdir -p test/visual/diff
+
+          for baseline in test/visual/snapshots/*.png; do
+            name=$(basename "$baseline")
+            actual="test/visual/actual/$name"
+            diff_file="test/visual/diff/$name"
+
+            if [ ! -f "$actual" ]; then
+              echo "MISSING: $name"
+              failed=1
+              continue
+            fi
+
+            # Compare images using ImageMagick
+            diff_pixels=$(compare -metric AE "$baseline" "$actual" "$diff_file" 2>&1) || true
+
+            if [ "$diff_pixels" = "0" ]; then
+              echo "PASS: $name"
+              rm -f "$diff_file"
+            else
+              echo "FAIL: $name ($diff_pixels pixels differ)"
+              failed=1
+            fi
+          done
+
+          if [ $failed -eq 1 ]; then
+            echo ""
+            echo "Visual regression test failed!"
+            echo "If changes are intentional, run: python3 test/visual/generate_snapshots.py"
+            echo "Then commit the updated snapshots."
+            exit 1
+          fi
+
+          echo ""
+          echo "All visual tests passed!"
 
       - name: Upload diff artifacts
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: visual-diff
-          path: test/visual/diff/
+          path: |
+            test/visual/diff/
+            test/visual/actual/
           retention-days: 7
-
-      - name: Upload actual screenshots
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-actual
-          path: test/visual/actual/
-          retention-days: 7
-
-  # Job to update baselines (manual trigger)
-  update-baselines:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y zsh git aha wkhtmltopdf imagemagick fonts-jetbrains-mono
-
-      - name: Install termshot
-        run: |
-          curl -fsSL https://github.com/homeport/termshot/releases/latest/download/termshot_linux_amd64.tar.gz \
-            | sudo tar -xz -C /usr/local/bin termshot
-
-      - name: Generate baselines
-        run: |
-          chmod +x test/visual/run-tests.sh test/visual/scenarios.zsh
-          ./test/visual/run-tests.sh generate
-        env:
-          TERM: xterm-256color
-
-      - name: Commit updated baselines
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add test/visual/snapshots/
-          git commit -m "Update visual regression baselines" || echo "No changes to commit"
-          git push
