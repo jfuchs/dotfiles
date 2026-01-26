@@ -1,0 +1,9 @@
+# Test artifacts (not committed)
+actual/
+diff/
+test-repo/
+
+# Keep snapshots directory but ignore if empty
+!snapshots/
+snapshots/*
+!snapshots/.gitkeep

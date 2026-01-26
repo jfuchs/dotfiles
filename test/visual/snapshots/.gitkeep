@@ -1,0 +1,2 @@
+# Baseline snapshots are stored here
+# Run ./run-tests.sh generate to create initial baselines

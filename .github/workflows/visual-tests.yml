@@ -1,0 +1,88 @@
+name: Visual Regression Tests
+
+on:
+  push:
+    paths:
+      - 'dot_prompt.zsh'
+      - 'dot_zshrc'
+      - 'test/visual/**'
+  pull_request:
+    paths:
+      - 'dot_prompt.zsh'
+      - 'dot_zshrc'
+      - 'test/visual/**'
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh git aha wkhtmltopdf imagemagick fonts-jetbrains-mono
+
+      - name: Install termshot
+        run: |
+          curl -fsSL https://github.com/homeport/termshot/releases/latest/download/termshot_linux_amd64.tar.gz \
+            | sudo tar -xz -C /usr/local/bin termshot
+
+      - name: Run visual regression tests
+        run: |
+          chmod +x test/visual/run-tests.sh test/visual/scenarios.zsh
+          ./test/visual/run-tests.sh test
+        env:
+          TERM: xterm-256color
+
+      - name: Upload diff artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diff
+          path: test/visual/diff/
+          retention-days: 7
+
+      - name: Upload actual screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-actual
+          path: test/visual/actual/
+          retention-days: 7
+
+  # Job to update baselines (manual trigger)
+  update-baselines:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh git aha wkhtmltopdf imagemagick fonts-jetbrains-mono
+
+      - name: Install termshot
+        run: |
+          curl -fsSL https://github.com/homeport/termshot/releases/latest/download/termshot_linux_amd64.tar.gz \
+            | sudo tar -xz -C /usr/local/bin termshot
+
+      - name: Generate baselines
+        run: |
+          chmod +x test/visual/run-tests.sh test/visual/scenarios.zsh
+          ./test/visual/run-tests.sh generate
+        env:
+          TERM: xterm-256color
+
+      - name: Commit updated baselines
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add test/visual/snapshots/
+          git commit -m "Update visual regression baselines" || echo "No changes to commit"
+          git push
