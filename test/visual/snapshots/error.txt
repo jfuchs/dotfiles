@@ -1,0 +1,4 @@
+─── error-exit ───
+~/test-repo main
+❯
+                                                                       12:34:56

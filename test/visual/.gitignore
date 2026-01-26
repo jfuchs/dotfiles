@@ -3,7 +3,4 @@ actual/
 diff/
 test-repo/
 
-# Keep snapshots directory but ignore if empty
-!snapshots/
-snapshots/*
-!snapshots/.gitkeep
+# Snapshots are committed as baselines
