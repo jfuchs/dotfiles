@@ -1,4 +1,0 @@
-─── deep-path ───
-~/test-repo/very/deep/nested/directory/structure main
-❯
-                                                                       12:34:56

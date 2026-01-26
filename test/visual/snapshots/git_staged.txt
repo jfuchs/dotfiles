@@ -1,4 +1,0 @@
-─── git-staged ───
-~/test-repo main+
-❯
-                                                                       12:34:56

@@ -1,4 +1,0 @@
-─── git-unstaged ───
-~/test-repo main!
-❯
-                                                                       12:34:56

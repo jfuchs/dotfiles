@@ -1,4 +1,0 @@
-─── long-command-5s ───
-~/test-repo main
-❯
-                                                              took 5s  12:34:56

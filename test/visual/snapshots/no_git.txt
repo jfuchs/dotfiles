@@ -1,4 +1,0 @@
-─── no-git ───
-~/some/directory
-❯
-                                                                       12:34:56

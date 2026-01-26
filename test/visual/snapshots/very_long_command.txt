@@ -1,4 +1,0 @@
-─── long-command-1h ───
-~/test-repo main
-❯
-                                                           took 1h 0s  12:34:56
