@@ -23,7 +23,9 @@ printf 'Installing starship...\n'
 curl -sS https://starship.rs/install.sh | sh -s -- -y
 
 printf 'Installing jj...\n'
-curl -fsSL https://github.com/jj-vcs/jj/releases/latest/download/jj-x86_64-unknown-linux-musl.tar.gz | sudo tar xz -C /usr/local/bin --strip-components=1 jj-x86_64-unknown-linux-musl/jj
+gh release download --repo jj-vcs/jj --pattern '*x86_64-unknown-linux-musl.tar.gz' --dir /tmp --clobber
+sudo tar xzf /tmp/jj-*-x86_64-unknown-linux-musl.tar.gz -C /usr/local/bin --strip-components=1 --wildcards '*/jj'
+rm -f /tmp/jj-*-x86_64-unknown-linux-musl.tar.gz
 
 printf 'Setting zsh as shell\n'
 if [ -n "$(grep $(whoami) /etc/passwd)" ] && ! grep -q "$(whoami).*/bin/zsh" /etc/passwd; then
