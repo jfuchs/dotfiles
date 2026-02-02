@@ -15,9 +15,12 @@ brew "fd"
 brew "fzf"
 brew "gh"
 brew "jq"
+brew "starship"
 brew "trash"
 brew "wget"
 brew "git"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
 EOF
 
 {{ else if (eq .chezmoi.os "linux") }}
@@ -29,7 +32,12 @@ sudo apt-get install -y \
   gh \
   jq \
   wget \
-  git
+  git \
+  zsh-autosuggestions \
+  zsh-syntax-highlighting
+
+printf 'Installing starship...\n'
+curl -sS https://starship.rs/install.sh | sh -s -- -y
 
 {{ end -}}
 
