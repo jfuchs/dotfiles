@@ -99,5 +99,8 @@ ge() {
   git add --all
   git commit -m "Executed command: $*"
 
-  return $?  
+  return $?
 }
+
+# Source machine-specific configuration if it exists
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
