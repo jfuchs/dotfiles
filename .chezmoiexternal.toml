@@ -1,0 +1,6 @@
+{{ if eq .chezmoi.os "linux" -}}
+[".local/share/fonts/JetBrainsMono"]
+    type = "archive"
+    url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+    exact = true
+{{ end -}}
