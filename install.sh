@@ -4,6 +4,9 @@
 
 set -e # -e: exit on error
 
+printf 'Removing broken Yarn apt repo if present...\n'
+sudo rm -f /etc/apt/sources.list.d/yarn.list
+
 printf 'Installing apt-get packages...\n'
 sudo apt-get update -y
 sudo apt-get install -y \
